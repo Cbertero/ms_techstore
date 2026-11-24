@@ -21,9 +21,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Repositorio simulado: no se conecta a MySQL
@@ -85,6 +87,25 @@ class ProductoPermisosTest {
     @Test
     void administradorPuedeCrear() throws Exception {
         crear("ADMINISTRADOR", 201);
+    }
+
+    @Test
+    void productoInexistenteDevuelve404ConMensaje() throws Exception {
+        mvc.perform(get("/api/productos/99"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.mensaje").value("No existe un producto con id 99"));
+    }
+
+    @Test
+    void datosInvalidosDevuelven400ConDetalle() throws Exception {
+        mvc.perform(post("/api/productos")
+                        .header("Authorization", "Bearer " + jwtUtil.generarToken("11111111-1", "ADMINISTRADOR"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nombre\":\"\",\"categoria\":\"Mouse\",\"precio\":-5,\"stock\":1}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errores.nombre").exists())
+                .andExpect(jsonPath("$.errores.precio").exists());
+        verify(repository, never()).save(any());
     }
 
     private void crear(String rol, int esperado) throws Exception {
