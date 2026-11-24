@@ -3,15 +3,16 @@
 -- Motor: MySQL 8.0.16+ (CHECK constraints activas)
 -- =====================================================
 
-DROP TABLE IF EXISTS producto;
-DROP TABLE IF EXISTS usuario;
+-- Los scripts son idempotentes: se pueden ejecutar en cada arranque
+-- sin borrar datos (CREATE TABLE IF NOT EXISTS + INSERT IGNORE en data.sql).
+-- Para reiniciar la BD desde cero: DROP DATABASE tienda_perifericos; y volver a crearla.
 
 -- -----------------------------------------------------
 -- Tabla: usuario
 -- El RUT es la clave primaria (formato: 12345678-5, sin puntos)
 -- La contraseña se guarda como hash BCrypt (60 caracteres)
 -- -----------------------------------------------------
-CREATE TABLE usuario (
+CREATE TABLE IF NOT EXISTS usuario (
     rut         VARCHAR(12)  NOT NULL,
     contrasena  VARCHAR(100) NOT NULL,
     rol         VARCHAR(20)  NOT NULL,
@@ -26,7 +27,7 @@ CREATE TABLE usuario (
 -- Tabla: producto
 -- Precio en pesos chilenos (CLP), sin decimales
 -- -----------------------------------------------------
-CREATE TABLE producto (
+CREATE TABLE IF NOT EXISTS producto (
     id           BIGINT        NOT NULL AUTO_INCREMENT,
     nombre       VARCHAR(100)  NOT NULL,
     descripcion  VARCHAR(500),
