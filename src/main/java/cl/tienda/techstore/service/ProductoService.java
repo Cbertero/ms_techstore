@@ -7,10 +7,12 @@ import cl.tienda.techstore.exception.RecursoNoEncontradoException;
 import cl.tienda.techstore.model.Producto;
 import cl.tienda.techstore.repository.ProductoRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -59,8 +61,13 @@ public class ProductoService {
     }
 
     @Transactional
-    public ProductoResponse actualizar(Long id, ProductoRequest request) {
+    public ProductoResponse actualizar(Long id, ProductoRequest request, boolean puedeCambiarPrecioYStock) {
         Producto producto = obtenerProducto(id);
+        if (!puedeCambiarPrecioYStock
+                && (!Objects.equals(producto.getPrecio(), request.getPrecio())
+                || !Objects.equals(producto.getStock(), request.getStock()))) {
+            throw new AccessDeniedException("Solo un ADMINISTRADOR puede modificar precio o stock");
+        }
         copiarDatos(request, producto);
         return ProductoResponse.desdeEntidad(productoRepository.save(producto));
     }

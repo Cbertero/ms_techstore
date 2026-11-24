@@ -40,10 +40,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**", "/api/auth/**").permitAll()
                         // Ver productos es público para clientes y visitantes
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
-                        // Crear y editar productos: solo ADMINISTRADOR o VENDEDOR
-                        .requestMatchers(HttpMethod.POST, "/api/productos/**").hasAnyRole("ADMINISTRADOR", "VENDEDOR")
+                        // Crear productos: solo ADMINISTRADOR
+                        .requestMatchers(HttpMethod.POST, "/api/productos/**").hasRole("ADMINISTRADOR")
+                        // Editar productos: ADMINISTRADOR o VENDEDOR (sin cambiar precio ni stock)
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasAnyRole("ADMINISTRADOR", "VENDEDOR")
-                        .requestMatchers(HttpMethod.PATCH, "/api/productos/**").hasAnyRole("ADMINISTRADOR", "VENDEDOR")
+                        // Ajustar stock: solo ADMINISTRADOR
+                        .requestMatchers(HttpMethod.PATCH, "/api/productos/**").hasRole("ADMINISTRADOR")
                         // Eliminar productos: solo ADMINISTRADOR
                         .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasRole("ADMINISTRADOR")
                         .anyRequest().authenticated()

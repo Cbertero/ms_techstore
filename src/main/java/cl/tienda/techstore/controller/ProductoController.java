@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -65,11 +66,15 @@ public class ProductoController {
     }
 
     // PUT /api/productos/5
+    // Solo ADMINISTRADOR puede cambiar precio o stock
     @PutMapping("/{id}")
     public ResponseEntity<ProductoResponse> actualizar(
             @PathVariable Long id,
-            @Valid @RequestBody ProductoRequest request) {
-        return ResponseEntity.ok(productoService.actualizar(id, request));
+            @Valid @RequestBody ProductoRequest request,
+            Authentication authentication) {
+        boolean esAdministrador = authentication.getAuthorities().stream()
+                .anyMatch(a -> "ROLE_ADMINISTRADOR".equals(a.getAuthority()));
+        return ResponseEntity.ok(productoService.actualizar(id, request, esAdministrador));
     }
 
     // PATCH /api/productos/5/stock
