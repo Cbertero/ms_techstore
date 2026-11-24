@@ -6,6 +6,9 @@ import cl.tienda.techstore.dto.ProductoRequest;
 import cl.tienda.techstore.dto.ProductoResponse;
 import cl.tienda.techstore.dto.StockRequest;
 import cl.tienda.techstore.service.ProductoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +28,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
+@Tag(name = "Productos", description = "Catálogo y CRUD de productos")
+@SecurityRequirement(name = "bearerAuth")
 @RequestMapping("/api/productos")
 @RequiredArgsConstructor
 public class ProductoController {
@@ -34,6 +39,7 @@ public class ProductoController {
     // GET /api/productos
     // GET /api/productos?categoria=Mouse
     // GET /api/productos?nombre=logitech
+    @Operation(summary = "Listar productos (filtros opcionales: categoria, nombre). Público")
     @GetMapping
     public ResponseEntity<List<ProductoResponse>> listar(
             @RequestParam(required = false) String categoria,
@@ -53,12 +59,14 @@ public class ProductoController {
     }
 
     // GET /api/productos/5
+    @Operation(summary = "Obtener un producto por id. Público")
     @GetMapping("/{id}")
     public ResponseEntity<ProductoResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(productoService.buscarPorId(id));
     }
 
     // POST /api/productos
+    @Operation(summary = "Crear producto. Solo ADMINISTRADOR")
     @PostMapping
     public ResponseEntity<ProductoResponse> crear(@Valid @RequestBody ProductoRequest request) {
         ProductoResponse creado = productoService.crear(request);
@@ -67,6 +75,7 @@ public class ProductoController {
 
     // PUT /api/productos/5
     // Solo ADMINISTRADOR puede cambiar precio o stock
+    @Operation(summary = "Actualizar producto. ADMINISTRADOR o VENDEDOR (vendedor no puede cambiar precio ni stock)")
     @PutMapping("/{id}")
     public ResponseEntity<ProductoResponse> actualizar(
             @PathVariable Long id,
@@ -78,6 +87,7 @@ public class ProductoController {
     }
 
     // PATCH /api/productos/5/stock
+    @Operation(summary = "Ajustar stock. Solo ADMINISTRADOR")
     @PatchMapping("/{id}/stock")
     public ResponseEntity<ProductoResponse> actualizarStock(
             @PathVariable Long id,
@@ -86,9 +96,10 @@ public class ProductoController {
     }
 
     // DELETE /api/productos/5
+    @Operation(summary = "Eliminar producto. Solo ADMINISTRADOR")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         productoService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
-}
+}

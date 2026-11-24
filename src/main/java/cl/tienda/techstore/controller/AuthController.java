@@ -3,6 +3,8 @@ package cl.tienda.techstore.controller;
 import cl.tienda.techstore.dto.AuthResponse;
 import cl.tienda.techstore.dto.LoginRequest;
 import cl.tienda.techstore.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
+@Tag(name = "Autenticación", description = "Login y validación de token JWT")
 @RequestMapping({"/api/v1/auth", "/api/auth"})
 @RequiredArgsConstructor
 public class AuthController {
@@ -26,6 +29,7 @@ public class AuthController {
     private final AuthService authService;
 
     // POST /api/v1/auth/login
+    @Operation(summary = "Iniciar sesión con RUT y contraseña; devuelve JWT")
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
@@ -47,6 +51,7 @@ public class AuthController {
     }
 
     // GET /api/v1/auth/validate
+    @Operation(summary = "Validar el token JWT enviado en Authorization")
     @GetMapping("/validate")
     public ResponseEntity<?> validar(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         if (authHeader == null || authHeader.isBlank()) {
@@ -68,4 +73,4 @@ public class AuthController {
                     ));
         }
     }
-}
+}

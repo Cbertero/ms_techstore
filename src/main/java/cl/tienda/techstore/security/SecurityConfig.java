@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Endpoints públicos de login y validación
                         .requestMatchers("/api/v1/auth/**", "/api/auth/**").permitAll()
+                        // Documentación Swagger / OpenAPI
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         // Ver productos es público para clientes y visitantes
                         .requestMatchers(HttpMethod.GET, "/api/productos/**").permitAll()
                         // Crear productos: solo ADMINISTRADOR
@@ -73,4 +75,4 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-}
+}
